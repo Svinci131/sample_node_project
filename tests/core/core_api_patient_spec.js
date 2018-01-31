@@ -244,7 +244,7 @@ lab.experiment('core/patient controller integration tests', () => {
               )
             },
             function createPatients(patient, callback) {
-              const payload = _.cloneDeep(patient)
+              const payload = _.cloneDeep(patient.toJSON())
               payload.email = 'sophia@test.com'
               payload.lastName = 'johnson'
 
@@ -260,7 +260,6 @@ lab.experiment('core/patient controller integration tests', () => {
               Code.expect(TestUtils.isRespSuccess(res, 202)).to.be.true()
 
               const patient = res.result.data.patient
-              console.log('respon', patient)
 
               Code.expect(patient.id).to.equal(_patient._id)
               Code.expect(patient.email).to.equal('sophia@test.com')
@@ -292,6 +291,100 @@ lab.experiment('core/patient controller integration tests', () => {
 
         lab.experiment('Error Handling', () => {
 
+          lab.test('Should return 422 if attempting to set name as empty string.', (done) => {
+            Async.waterfall([
+              function fakePatientJSON(callback) {
+                FakeFactories.patientFactory.createAndSave(
+                  1,
+                  { lastName: 'Karim' },
+                  callback
+                )
+              },
+              function createPatients(patient, callback) {
+                const payload = _.cloneDeep(patient.toJSON())
+                payload.lastName = ''
+
+                const req = {
+                  method: 'PUT',
+                  url: `/api/v1.0/patients/${patient._id}`,
+                  payload: payload
+                }
+
+                server.inject(req, res => callback(null, res, patient))
+              },
+              function testPatientNotUpdated(res, _patient, callback) {
+                const errMessage = 'child "lastName" fails because ["lastName" is not allowed to be empty]'
+                Code.expect(TestUtils.isRespError(res, 422, 'Invalid Data', errMessage))
+                  .to.be.true()
+
+                return callback(null)
+              },
+              function testPatientSavedInDb(callback) {
+                Models.Patient.find({}, function(err, patients) {
+                  if (err) return callback(err)
+                  Code.expect(patients).to.have.length(1)
+
+                  const updatedPatient = patients[0]
+                  Code.expect(updatedPatient.lastName).to.equal('Karim')
+
+                  return callback(null)
+                })
+              }
+            ],
+            function finish(err) {
+              if (err) throw err
+
+              return done()
+            })
+          })
+
+          lab.test('Should return 422 if attempting to make name too long.', (done) => {
+            Async.waterfall([
+              function fakePatientJSON(callback) {
+                FakeFactories.patientFactory.createAndSave(
+                  1,
+                  { lastName: 'Karim' },
+                  callback
+                )
+              },
+              function createPatients(patient, callback) {
+                const payload = _.cloneDeep(patient.toJSON())
+                payload.lastName = Array(36).fill('a').join('')
+
+                const req = {
+                  method: 'PUT',
+                  url: `/api/v1.0/patients/${patient._id}`,
+                  payload: payload
+                }
+
+                server.inject(req, res => callback(null, res, patient))
+              },
+              function testPatientNotUpdated(res, _patient, callback) {
+                const errMessage = 'child "lastName" fails because ["lastName" length must be less than or equal to 35 characters long]'
+                Code.expect(TestUtils.isRespError(res, 422, 'Invalid Data', errMessage))
+                  .to.be.true()
+
+                return callback(null)
+              },
+              function testPatientSavedInDb(callback) {
+                Models.Patient.find({}, function(err, patients) {
+                  if (err) return callback(err)
+                  Code.expect(patients).to.have.length(1)
+
+                  const updatedPatient = patients[0]
+                  Code.expect(updatedPatient.lastName).to.equal('Karim')
+
+                  return callback(null)
+                })
+              }
+            ],
+            function finish(err) {
+              if (err) throw err
+
+              return done()
+            })
+          })
+
           lab.test('Should return 404 if not patient with the given id exists.', (done) => {
             Async.waterfall([
               function fakePatientJSON(callback) {
@@ -302,7 +395,7 @@ lab.experiment('core/patient controller integration tests', () => {
                 )
               },
               function updatePatient(patient, callback) {
-                const payload = _.cloneDeep(patient)
+                const payload = _.cloneDeep(patient.toJSON())
                 payload.email = 'sophia@test.com'
                 payload.lastName = 'johnson'
 
@@ -336,15 +429,44 @@ lab.experiment('core/patient controller integration tests', () => {
             })
           })
 
-          lab.test.skip('Should return 422 if bad id is given.', (done) => {
-            const req = {
-              method: 'GET',
-              url: '/api/v1.0/patients/AAAA'
-            }
+          lab.test('Should return 422 if bad id is given.', (done) => {
+            Async.waterfall([
+              function fakePatientJSON(callback) {
+                FakeFactories.patientFactory.create(
+                  1,
+                  null,
+                  callback
+                )
+              },
+              function updatePatient(patient, callback) {
+                const payload = _.cloneDeep(patient.toJSON())
+                payload.email = 'sophia@test.com'
+                payload.lastName = 'johnson'
 
-            server.inject(req, (res) => {
-              Code.expect(TestUtils.isRespError(res, 422, 'Invalid Data'))
-                .to.be.true()
+                const req = {
+                  method: 'PUT',
+                  url: '/api/v1.0/patients/AAA',
+                  payload: payload
+                }
+
+                server.inject(req, res => callback(null, res, patient))
+              },
+              function test422Returned(res, _patient, callback) {
+                Code.expect(TestUtils.isRespError(res, 422, 'Invalid Data'))
+                  .to.be.true()
+                return callback(null)
+              },
+              function testPatientNotSavedInDb(callback) {
+                Models.Patient.find({}, function(err, patients) {
+                  if (err) return callback(err)
+                  Code.expect(patients).to.have.length(0)
+
+                  return callback(null)
+                })
+              }
+            ],
+            function finish(err) {
+              if (err) throw err
 
               return done()
             })
