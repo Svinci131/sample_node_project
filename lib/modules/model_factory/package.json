@@ -1,0 +1,8 @@
+{
+  "name": "model_factory",
+  "version": "1.0.0",
+  "main": "./index.js",
+  "dependencies": {
+    "async": "^2.0.0-rc.5"
+  }
+}

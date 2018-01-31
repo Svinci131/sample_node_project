@@ -1,0 +1,12 @@
+FROM mhart/alpine-node:latest
+ENV ROOT_PATH /app
+ADD package.json $ROOT_PATH/package.json
+WORKDIR $ROOT_PATH
+RUN npm install
+ENV PATH $PATH:$ROOT_PATH/node_modules/.bin
+ENV NODE_PATH $ROOT_PATH/parsley_health_test_sv/lib
+ENV NODE_CONFIG_DIR=$ROOT_PATH/parsley_health_test_sv/config
+WORKDIR $ROOT_PATH/parsley_health_test_sv
+# ENTRYPOINT ["tail", "-f", "/dev/null"]
+EXPOSE 8000
+CMD ["scripts/start_node_server.sh"]

@@ -1,0 +1,100 @@
+{
+  "database": {
+    "connection_string": "mongodb://parsley_health_test_sv_mongodb:27017/parsley_health_test_sv_test"
+  },
+  "glue_manifest": {
+    "connections": [
+      {
+        "host": "0.0.0.0",
+        "port": 8000,
+        "labels": ["api"],
+        "routes": {
+          "cors": true
+        }
+      }
+    ],
+    "registrations": [
+      {
+        "plugin": {
+          "register": "./core"
+        }
+      },
+      {
+        "plugin": {
+            "register": "inert"
+          }
+      },
+      {
+        "plugin": {
+          "register": "vision"
+        }
+      },
+      {
+        "plugin": {
+          "register": "hapi-swaggered",
+          "options": {
+            "tags": {
+              "api": "API specification"
+            },
+            "info": {
+              "title": "Parsley-Health-Test-SV API",
+              "description": "Parsley-Health-Test-SV backend microservice API",
+              "version": "1.0"
+            }
+          }
+        }
+      },
+      {
+        "plugin": {
+          "register": "hapi-swaggered-ui",
+          "options": {
+            "title": "Parsley-Health-Test-SV API",
+            "path": "/api-docs",
+            "swaggerOptions": {
+              "validatorUrl": null
+            }
+          }
+        }
+      },
+      {
+        "plugin": {
+          "register": "good",
+          "options": {
+            "ops": {
+              "interval": 1000
+            },
+            "reporters": {
+              "console": [
+                {
+                  "module": "good-squeeze",
+                  "name": "Squeeze",
+                  "args": [{ "log": "*", "response": "*" }]
+                },
+                {
+                  "module": "good-console"
+                },
+                "stdout"
+              ],
+              "file": [
+                {
+                  "module": "good-squeeze",
+                  "name": "Squeeze",
+                  "args": [{ "log": "*", "request": "*", "response": "*" }]
+                },
+                {
+                  "module": "good-squeeze",
+                  "name": "SafeJson"
+                },
+                {
+                  "module": "good-file",
+                  "args": ["./logs/nodejs.log"]
+                }
+              ]
+            }
+          }
+        },
+        "options": {}
+      }
+    ]
+  }
+}

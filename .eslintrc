@@ -1,0 +1,42 @@
+// required packages:
+// "eslint": "^3.13.0",
+// "eslint-config-airbnb": "^14.0.0",
+// "eslint-plugin-import": "^2.2.0",
+// "eslint-plugin-jsx-a11y": "^3.0.2",
+// "eslint-plugin-react": "^6.9.0"
+{
+    "extends": "airbnb",
+    "plugins": ["import"],
+    "env": {
+        "browser": true,
+        "es6": true,
+        "node": true
+    },
+    "rules": {
+        "arrow-body-style": ["off"],
+        "comma-dangle": ["off"],
+        "cosistent-return": ["off"],
+        "func-names": ["off"],
+        "import/extensions": [0, "always"],
+        "import/no-unresolved": ["off"],
+        "import/no-extraneous-dependencies": ["off"],
+        "indent": [ 2, 2, {"SwitchCase": 1} ],
+        "linebreak-style": [ 2, "unix" ],
+        "no-bitwise": ["off"],
+        "no-param-reassign": ["off"],
+        "no-shadow": ["off"],
+        "no-underscore-dangle": ["off"],
+        "no-use-before-define": ["error", { "functions": false, "classes": false }],
+        "object-shorthand": ["error", "consistent"],
+        "padded-blocks": ["off"],
+        "prefer-arrow-callback": ["off"],
+        "quotes": [ 2, "single" ],
+        "react/forbid-prop-types": ["off"],
+        "react/jsx-filename-extension": [1, { "extensions": [".js", ".jsx"] }],
+        "semi": [ 2, "never" ],
+        "space-before-function-paren": ["off"]
+    },
+    "globals": {
+        "config": true
+    }
+}

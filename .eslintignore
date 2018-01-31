@@ -1,0 +1,13 @@
+*.pyc
+*.log
+*.swp
+*.sublime-project
+*.sublime-workspace
+.DS_Store
+.ctrlpignore
+.agignore
+/node_modules
+/coverage
+/db/*
+/keys
+docker.secrets.env
