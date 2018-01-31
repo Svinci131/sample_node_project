@@ -32,6 +32,7 @@
     "joi-phone-number": "^2.0.1",
     "lodash": "^4.16.1",
     "mongoose": "^4.6.1",
+    "object-path": "^0.11.4",
     "vision": "^4.1.0"
   },
   "devDependencies": {
