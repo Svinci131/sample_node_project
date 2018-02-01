@@ -592,7 +592,7 @@ lab.experiment('util_db tests', () => {
           ).exec((err, paginatedCats) => callback(err, cats, paginatedCats))
         },
         function checkResults(cats, paginatedCats, callback) {
-          Code.expect(paginatedCats).to.have.length(25)
+          Code.expect(paginatedCats).to.have.length(50)
 
           return callback()
         }

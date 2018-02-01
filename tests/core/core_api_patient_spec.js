@@ -17,22 +17,6 @@ let mongoose
 
 const notFoundTestId = '5a722b831657032959775a11'
 
-/**
- * Checks the patient doc object in the response
- * doesn't contain any Mongo keys like __v.
- *
- * @param { Object } - The patient doc object.
- */
-function _noPrivateFieldsInResponse(patient) {
-  Code.expect(patient.__v).to.be.undefined()
-  /* Test no nested docs have _id or id */
-  Code.expect(patient.address._id).to.be.undefined()
-  Code.expect(patient.address.__v).to.be.undefined()
-  const phone = patient.phones[0]
-  Code.expect(phone._id).to.be.undefined()
-  Code.expect(phone.__v).to.be.undefined()
-}
-
 lab.experiment('core/patient controller integration tests', () => {
 
   lab.before((done) => {
@@ -57,8 +41,8 @@ lab.experiment('core/patient controller integration tests', () => {
 
     lab.experiment('List tests', () => {
 
-      /* Should return a max number of patients */
       /* Should be careful abt sensitive info */
+      
       lab.test('Should return an array of all patients.', (done) => {
         Async.waterfall([
           function fakePatients(callback) {
@@ -98,6 +82,117 @@ lab.experiment('core/patient controller integration tests', () => {
         })
       })
 
+      lab.test('Should return 50 patients by default', (done) => {
+        Async.waterfall([
+          function fakePatients(callback) {
+            FakeFactories.patientFactory.createAndSave(
+              51,
+              null,
+              callback
+            )
+          },
+          function listPatients(patients, callback) {
+            const req = {
+              method: 'GET',
+              url: '/api/v1.0/patients'
+            }
+
+            server.inject(req, res => callback(null, res))
+          },
+          function testPatientsRetrieved(res, callback) {
+            Code.expect(TestUtils.isRespSuccess(res, 200)).to.be.true()
+
+            const patients = res.result.data.patients
+            Code.expect(patients).to.have.length(50)
+
+            patients.forEach((patient) => {
+              /* Should not include __v or any of that */
+              _noPrivateFieldsInResponse(patient)
+            })
+
+            return callback()
+          }
+        ],
+        function finish(err) {
+          if (err) throw err
+
+          return done()
+        })
+      })
+
+      lab.test('Should return be able to grab up to 300 patients at a time', (done) => {
+        Async.waterfall([
+          function fakePatients(callback) {
+            FakeFactories.patientFactory.createAndSave(
+              301,
+              null,
+              callback
+            )
+          },
+          function listPatients(patients, callback) {
+            const req = {
+              method: 'GET',
+              url: '/api/v1.0/patients?pageLimit=300'
+            }
+
+            server.inject(req, res => callback(null, res))
+          },
+          function testPatientsRetrieved(res, callback) {
+            Code.expect(TestUtils.isRespSuccess(res, 200)).to.be.true()
+
+            const patients = res.result.data.patients
+            Code.expect(patients).to.have.length(300)
+
+            patients.forEach((patient) => {
+              /* Should not include __v or any of that */
+              _noPrivateFieldsInResponse(patient)
+            })
+
+            return callback()
+          }
+        ],
+        function finish(err) {
+          if (err) throw err
+
+          return done()
+        })
+      })
+
+      lab.test('Should return an error if attempting to get more ' +
+      'than to 300 patients at a time.', (done) => {
+        Async.waterfall([
+          function fakePatients(callback) {
+            FakeFactories.patientFactory.createAndSave(
+              301,
+              null,
+              callback
+            )
+          },
+          function listPatients(patients, callback) {
+            const req = {
+              method: 'GET',
+              url: '/api/v1.0/patients?pageLimit=301'
+            }
+
+            server.inject(req, res => callback(null, res))
+          },
+          function testPatientsRetrieved(res, callback) {
+            const errMessage = '"pageLimit" must be less than or equal to 300'
+            Code.expect(TestUtils.isRespError(
+            res, 400, 'Invalid Data', null)).to.be.true()
+            Code.expect(res.result.data[0].message).to.equal(errMessage)
+
+            return callback()
+          }
+        ],
+        function finish(err) {
+          if (err) throw err
+
+          return done()
+        })
+      })
+
+      /* BONUS */
       lab.test('Should be able to filter list w query params.', (done) => {
         Async.waterfall([
           function fakePatientsWTermsAccepted(callback) {
@@ -1566,3 +1661,19 @@ lab.experiment('core/patient controller integration tests', () => {
   })
 
 })
+
+/**
+ * Checks the patient doc object in the response
+ * doesn't contain any Mongo keys like __v.
+ *
+ * @param { Object } - The patient doc object.
+ */
+function _noPrivateFieldsInResponse(patient) {
+  Code.expect(patient.__v).to.be.undefined()
+  /* Test no nested docs have _id or id */
+  Code.expect(patient.address._id).to.be.undefined()
+  Code.expect(patient.address.__v).to.be.undefined()
+  const phone = patient.phones[0]
+  Code.expect(phone._id).to.be.undefined()
+  Code.expect(phone.__v).to.be.undefined()
+}
