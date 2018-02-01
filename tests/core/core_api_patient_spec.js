@@ -998,6 +998,110 @@ lab.experiment('core/patient controller integration tests', () => {
             })
           })
 
+          lab.test('Should return 422 if phone number is too short.', (done) => {
+            Async.waterfall([
+              function fakePatientJSON(callback) {
+                FakeFactories.patientFactory.createAndSave(
+                  1,
+                  null,
+                  callback
+                )
+              },
+              function updatePatient(patient, callback) {
+                const payload = _.cloneDeep(patient.toJSON())
+                payload.phones = [{
+                  type: 'Mobile',
+                  number: '1234567'
+                }]
+
+                const req = {
+                  method: 'PUT',
+                  url: `/api/v1.0/patients/${patient._id}`,
+                  payload: payload
+                }
+
+                server.inject(req, res => callback(null, res, patient))
+              },
+              function testPatientNotUpdated(res, _patient, callback) {
+                const errMessage = 'Phone Number Must be 10 Numeric Characters'
+                Code.expect(TestUtils.isRespError(res, 422, 'Invalid Data', errMessage))
+                  .to.be.true()
+
+                return callback(null)
+              },
+              function testPatientSavedInDb(callback) {
+                /* checks no new ones were created as well */
+                Models.Patient.find({}, function(err, patients) {
+                  if (err) return callback(err)
+                  Code.expect(patients).to.have.length(1)
+
+                  patients[0].phones.forEach((phone) => {
+                    Code.expect(phone.number).to.not.equal('1234567')
+                    Code.expect(phone.number).to.have.length(10)
+                  })
+                  return callback(null)
+                })
+              }
+            ],
+            function finish(err) {
+              if (err) throw err
+
+              return done()
+            })
+          })
+
+          lab.test('Should return 422 if phone number contains non-numeric characters.', (done) => {
+            Async.waterfall([
+              function fakePatientJSON(callback) {
+                FakeFactories.patientFactory.createAndSave(
+                  1,
+                  null,
+                  callback
+                )
+              },
+              function updatePatient(patient, callback) {
+                const payload = _.cloneDeep(patient.toJSON())
+                payload.phones = [{
+                  type: 'Mobile',
+                  number: '12-2221234'
+                }]
+
+                const req = {
+                  method: 'PUT',
+                  url: `/api/v1.0/patients/${patient._id}`,
+                  payload: payload
+                }
+
+                server.inject(req, res => callback(null, res, patient))
+              },
+              function testPatientNotUpdated(res, _patient, callback) {
+                const errMessage = 'Phone Number Must be 10 Numeric Characters'
+                Code.expect(TestUtils.isRespError(res, 422, 'Invalid Data', errMessage))
+                  .to.be.true()
+
+                return callback(null)
+              },
+              function testPatientSavedInDb(callback) {
+                /* checks no new ones were created as well */
+                Models.Patient.find({}, function(err, patients) {
+                  if (err) return callback(err)
+                  Code.expect(patients).to.have.length(1)
+
+                  patients[0].phones.forEach((phone) => {
+                    Code.expect(phone.number).to.not.equal('12-2221234')
+                    Code.expect(phone.number).to.have.length(10)
+                  })
+                  return callback(null)
+                })
+              }
+            ],
+            function finish(err) {
+              if (err) throw err
+
+              return done()
+            })
+          })
+
           lab.test('Should return 404 if not patient with the given id exists.', (done) => {
             Async.waterfall([
               function fakePatientJSON(callback) {
