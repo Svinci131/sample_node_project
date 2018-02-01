@@ -4,6 +4,7 @@
 const _ = require('lodash')
 const Async = require('async')
 const Code = require('code')
+const Faker = require('faker')
 const FakeFactories = require('../../lib/modules/core/models/fake_factories')
 const Lab = require('lab')
 const Models = require('../../lib/modules/core/models')
@@ -97,7 +98,7 @@ lab.experiment('core/patient controller integration tests', () => {
         })
       })
 
-      lab.test.skip('Should be able to filter list w query params.', (done) => {
+      lab.test('Should be able to filter list w query params.', (done) => {
         Async.waterfall([
           function fakePatientsWTermsAccepted(callback) {
             FakeFactories.patientFactory.createAndSave(
@@ -106,7 +107,7 @@ lab.experiment('core/patient controller integration tests', () => {
               callback
             )
           },
-          function fakePatientsWTermsAccepted(callback) {
+          function fakePatientsWTermsAccepted(patients, callback) {
             FakeFactories.patientFactory.createAndSave(
               4,
               { termsAccepted: false },
@@ -140,6 +141,65 @@ lab.experiment('core/patient controller integration tests', () => {
           return done()
         })
       })
+
+      lab.test.skip('Should be able to filter list by nested fields.', (done) => {
+        Async.waterfall([
+          function fakePatientsWTermsAccepted(callback) {
+            FakeFactories.patientFactory.createAndSave(
+              7,
+              {
+                address: {
+                  line1: Faker.address.streetAddress(),
+                  city: 'la',
+                  state: Faker.address.state(),
+                  zip: Faker.address.zipCode()
+                }
+              },
+              callback
+            )
+          },
+          function fakePatientsWTermsAccepted(patients, callback) {
+            FakeFactories.patientFactory.createAndSave(
+              4,
+              {
+                address: {
+                  line1: Faker.address.streetAddress(),
+                  city: 'ny',
+                  state: Faker.address.state(),
+                  zip: Faker.address.zipCode()
+                }
+              },
+              callback
+            )
+          },
+          function listPatients(patients, callback) {
+            const req = {
+              method: 'GET',
+              url: '/api/v1.0/patients?address.city=ny'
+            }
+
+            server.inject(req, res => callback(null, res))
+          },
+          function testPatientsRetrieved(res, callback) {
+            Code.expect(TestUtils.isRespSuccess(res, 200)).to.be.true()
+
+            const patients = res.result.data.patients
+            Code.expect(patients).to.have.length(4)
+
+            patients.forEach((patient) => {
+              Code.expect(patient.address).to.equal('ny')
+            })
+
+            return callback()
+          }
+        ],
+        function finish(err) {
+          if (err) throw err
+
+          return done()
+        })
+      })
+
     })
 
     lab.experiment('GET tests', () => {
@@ -247,15 +307,13 @@ lab.experiment('core/patient controller integration tests', () => {
           })
         })
       })
-
     })
 
     lab.experiment('CREATE tests', () => {
-      /* Should throw 422 if:
+      /* Should throw Err if:
           - Patient with same name exists
           - Patient with same email exists
       */
-
       lab.test('Should create a new patient document and return it.', (done) => {
         Async.waterfall([
           function fakePatientJSON(callback) {
@@ -1458,7 +1516,51 @@ lab.experiment('core/patient controller integration tests', () => {
           })
         })
       })
+    })
 
+    lab.experiment('DELETE tests', () => {
+      lab.test('Should delete a patient document and return 204.', (done) => {
+        Async.waterfall([
+          function fakePatients(callback) {
+            FakeFactories.patientFactory.createAndSave(
+              3,
+              null,
+              callback
+            )
+          },
+          function fakePatientToRemove(patients, callback) {
+            FakeFactories.patientFactory.createAndSave(
+              1,
+              null,
+              callback
+            )
+          },
+          function createPatients(patient, callback) {
+            const req = {
+              method: 'DELETE',
+              url: `/api/v1.0/patients/${patient._id}`
+            }
+
+            server.inject(req, res => callback(null, res))
+          },
+          function testSuccessResponse(res, callback) {
+            Code.expect(TestUtils.isRespSuccess(res, 204)).to.be.true()
+            return callback(null)
+          },
+          function testPatientRemovedFromDb(callback) {
+            Models.Patient.find({}, function(err, patients) {
+              if (err) return callback(err)
+              Code.expect(patients).to.have.length(3)
+              return callback(null)
+            })
+          }
+        ],
+        function finish(err) {
+          if (err) throw err
+
+          return done()
+        })
+      })
     })
 
   })

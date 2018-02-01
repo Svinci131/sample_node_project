@@ -1,7 +1,6 @@
 start 10:11
 
 MVP:
-//DELETE ROUTE
 //ADD IN FILTERS
 
 LAST:
