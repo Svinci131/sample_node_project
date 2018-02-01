@@ -6,8 +6,6 @@ MVP:
 
 LAST:
 //UPDATE DB UTILS TO BE MODERN
-//REST OF THE VALIDATION
+//CHECK SPELLING AND NAMES
 
 
-# To Do:
-	- Validate Age and birth day match

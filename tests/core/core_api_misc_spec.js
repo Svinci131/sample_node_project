@@ -1,7 +1,5 @@
 /* eslint disable no-unused-vars: off, no-console: off */
 
-'use strict'
-
 const Async = require('async')
 const Code = require('code')
 const Lab = require('lab')
@@ -9,16 +7,18 @@ const TestUtils = require('../test_utils')
 
 const lab = exports.lab = Lab.script()
 
-var server, mongoose
+let mongoose
+let server
 
 lab.experiment('core/misc misc integration tests', () => {
 
   lab.before((done) => {
-    var onServerReady = function(_server, _mongoose) {
+    const onServerReady = function(_server, _mongoose) {
       server = _server
       mongoose = _mongoose
       return done()
     }
+
     TestUtils.setupServer(true, onServerReady)
   })
 
@@ -37,13 +37,12 @@ lab.experiment('core/misc misc integration tests', () => {
       lab.test('should return pong response', (done) => {
         Async.waterfall([
           function getPing(callback) {
-            var req = {
+            const req = {
               method: 'GET',
               url: '/ping'
             }
-            server.inject(req, res => {
-              return callback(null, res)
-            })
+
+            server.inject(req, res => callback(null, res))
           },
           function testPongReturned(res, callback) {
             Code.expect(TestUtils.isRespSuccess(res, 200)).to.be.true()

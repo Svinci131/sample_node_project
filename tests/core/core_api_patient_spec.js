@@ -180,6 +180,44 @@ lab.experiment('core/patient controller integration tests', () => {
         })
       })
 
+      lab.test('Should include virtual fields in reponse.', (done) => {
+        Async.waterfall([
+          function fakePatients(callback) {
+            FakeFactories.patientFactory.createAndSave(
+              5,
+              { dob: new Date('1991-02-07') },
+              callback
+            )
+          },
+          function getPatient(patients, callback) {
+            const patient = patients[0]
+            const req = {
+              method: 'GET',
+              url: `/api/v1.0/patients/${patient._id}`
+            }
+
+            server.inject(req, res => callback(null, res, patient))
+          },
+          function testPatientRetrieved(res, _patient, callback) {
+            Code.expect(TestUtils.isRespSuccess(res, 200)).to.be.true()
+
+            const patient = res.result.data.patient
+            Code.expect(patient._id).to.equal(_patient._id)
+            Code.expect(patient.age).to.equal(26)
+
+            /* Should not include __v or any of that */
+            _noPrivateFieldsInResponse(patient)
+
+            return callback()
+          }
+        ],
+        function finish(err) {
+          if (err) throw err
+
+          return done()
+        })
+      })
+
       lab.experiment('Error Handling', () => {
 
         lab.test('Should return 404 if not patient with the given id exists.', (done) => {
@@ -308,7 +346,7 @@ lab.experiment('core/patient controller integration tests', () => {
 
               return callback(null)
             },
-            function testPatientSavedInDb(callback) {
+            function testPatientNotSavedInDb(callback) {
               Models.Patient.find({}, function(err, patients) {
                 if (err) return callback(err)
                 Code.expect(patients).to.have.length(0)
@@ -354,7 +392,54 @@ lab.experiment('core/patient controller integration tests', () => {
 
               return callback(null)
             },
-            function testPatientSavedInDb(callback) {
+            function testPatientNotSavedInDb(callback) {
+              Models.Patient.find({}, function(err, patients) {
+                if (err) return callback(err)
+                Code.expect(patients).to.have.length(0)
+
+                return callback(null)
+              })
+            }
+          ],
+          function finish(err) {
+            if (err) throw err
+
+            return done()
+          })
+        })
+
+        lab.test('Should return 422 if email is invalid.', (done) => {
+          Async.waterfall([
+            function fakePatientJSON(callback) {
+              FakeFactories.patientFactory.create(
+                1,
+                null,
+                callback
+              )
+            },
+            function createPatient(patient, callback) {
+              console.log(patient)
+              const payload = _.cloneDeep(patient.toJSON())
+              delete payload.id
+              delete payload._id
+              payload.email = 'hi'
+
+              const req = {
+                method: 'POST',
+                url: '/api/v1.0/patients',
+                payload: payload
+              }
+
+              server.inject(req, res => callback(null, res, patient))
+            },
+            function testPatientNotUpdated(res, _patient, callback) {
+              const errMessage = 'child "email" fails because ["email" must be a valid email]'
+              Code.expect(TestUtils.isRespError(res, 422, 'Invalid Data', errMessage))
+                .to.be.true()
+
+              return callback(null)
+            },
+            function testPatientNotSavedInDb(callback) {
               Models.Patient.find({}, function(err, patients) {
                 if (err) return callback(err)
                 Code.expect(patients).to.have.length(0)
@@ -380,6 +465,7 @@ lab.experiment('core/patient controller integration tests', () => {
               )
             },
             function createPatient(patient, callback) {
+              console.log(patient)
               const payload = _.cloneDeep(patient.toJSON())
               delete payload.id
               delete payload._id
@@ -623,6 +709,54 @@ lab.experiment('core/patient controller integration tests', () => {
             })
           })
 
+          lab.test('Should return 422 if given an invalid email.', (done) => {
+            Async.waterfall([
+              function fakePatientJSON(callback) {
+                FakeFactories.patientFactory.createAndSave(
+                  1,
+                  { email: 'test@test.com' },
+                  callback
+                )
+              },
+              function createPatients(patient, callback) {
+                const payload = _.cloneDeep(patient.toJSON())
+                payload.email = 'hi'
+
+                const req = {
+                  method: 'PUT',
+                  url: `/api/v1.0/patients/${patient._id}`,
+                  payload: payload
+                }
+
+                server.inject(req, res => callback(null, res, patient))
+              },
+              function testPatientNotUpdated(res, _patient, callback) {
+                console.log(res.result)
+                const errMessage = 'child "email" fails because ["email" must be a valid email]'
+                Code.expect(TestUtils.isRespError(res, 422, 'Invalid Data', errMessage))
+                  .to.be.true()
+
+                return callback(null)
+              },
+              function testPatientNotSavedInDb(callback) {
+                Models.Patient.find({}, function(err, patients) {
+                  if (err) return callback(err)
+                  Code.expect(patients).to.have.length(1)
+
+                  const updatedPatient = patients[0]
+                  Code.expect(updatedPatient.email).to.equal('test@test.com')
+
+                  return callback(null)
+                })
+              }
+            ],
+            function finish(err) {
+              if (err) throw err
+
+              return done()
+            })
+          })
+
           lab.test('Should return 404 if not patient with the given id exists.', (done) => {
             Async.waterfall([
               function fakePatientJSON(callback) {
@@ -712,7 +846,7 @@ lab.experiment('core/patient controller integration tests', () => {
       })
 
       lab.experiment('PATCH tests', () => {
-        /* duplicate fields */
+        /* Test cases duplicate fields */
         lab.test('Should update patient document and return it.', (done) => {
           Async.waterfall([
             function fakePatientJSON(callback) {
@@ -981,6 +1115,7 @@ lab.experiment('core/patient controller integration tests', () => {
       })
 
     })
+
   })
 
 })
