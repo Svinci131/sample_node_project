@@ -42,7 +42,6 @@ lab.experiment('core/patient controller integration tests', () => {
     lab.experiment('List tests', () => {
 
       /* Should be careful abt sensitive info */
-      
       lab.test('Should return an array of all patients.', (done) => {
         Async.waterfall([
           function fakePatients(callback) {
@@ -53,7 +52,6 @@ lab.experiment('core/patient controller integration tests', () => {
             )
           },
           function listPatients(patients, callback) {
-            console.log(patients)
             const req = {
               method: 'GET',
               url: '/api/v1.0/patients'
@@ -298,7 +296,7 @@ lab.experiment('core/patient controller integration tests', () => {
     })
 
     lab.experiment('GET tests', () => {
-      /* Should not include virtuals */
+
       lab.test('Should return the patient document if found.', (done) => {
         Async.waterfall([
           function fakePatients(callback) {
@@ -324,7 +322,6 @@ lab.experiment('core/patient controller integration tests', () => {
             Code.expect(patient._id).to.equal(_patient._id)
             /* Should not include __v or any of that */
             _noPrivateFieldsInResponse(patient)
-            //TODO FOR LOOP TEST
             return callback()
           }
         ],
@@ -335,7 +332,7 @@ lab.experiment('core/patient controller integration tests', () => {
         })
       })
 
-      lab.test('Should include virtual fields in reponse.', (done) => {
+      lab.test('Should include virtual fields [age] in reponse.', (done) => {
         Async.waterfall([
           function fakePatients(callback) {
             FakeFactories.patientFactory.createAndSave(
@@ -405,10 +402,11 @@ lab.experiment('core/patient controller integration tests', () => {
     })
 
     lab.experiment('CREATE tests', () => {
-      /* Should throw Err if:
-          - Patient with same name exists
+
+      /* Should throw error if:
           - Patient with same email exists
       */
+
       lab.test('Should create a new patient document and return it.', (done) => {
         Async.waterfall([
           function fakePatientJSON(callback) {
@@ -428,11 +426,9 @@ lab.experiment('core/patient controller integration tests', () => {
             server.inject(req, res => callback(null, res, patient))
           },
           function testPatientRetrieved(res, _patient, callback) {
-            console.log(res.result)
             Code.expect(TestUtils.isRespSuccess(res, 200)).to.be.true()
 
             const patient = res.result.data.patient
-            console.log(patient)
 
             /* Should not include __v or any of that */
             Code.expect(patient.id)
@@ -570,7 +566,6 @@ lab.experiment('core/patient controller integration tests', () => {
               )
             },
             function createPatient(patient, callback) {
-              console.log(patient)
               const payload = _.cloneDeep(patient.toJSON())
               delete payload.id
               delete payload._id

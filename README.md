@@ -1,10 +1,18 @@
 start 10:11
 
-MVP:
-//ADD IN FILTERS
+API
 
-LAST:
-//UPDATE DB UTILS TO BE MODERN
-//CHECK SPELLING AND NAMES
+- nested filters
+- add count to list response
+- spell check
+
+
+To Decide:
+   Keep patch?
+
+Clean up:
+ - remove consoles
+ - check names in tests
+
 
 
