@@ -545,6 +545,7 @@ lab.experiment('core/patient controller integration tests', () => {
             return done()
           })
         })
+
         lab.test.skip('Should return 422 if phone number is invalid.', (done) => {
           Async.waterfall([
             function fakePatientJSON(callback) {
@@ -734,6 +735,7 @@ lab.experiment('core/patient controller integration tests', () => {
                 return callback(null)
               },
               function testPatientSavedInDb(callback) {
+                /* checks no new ones were created as well */
                 Models.Patient.find({}, function(err, patients) {
                   if (err) return callback(err)
                   Code.expect(patients).to.have.length(1)
@@ -781,6 +783,7 @@ lab.experiment('core/patient controller integration tests', () => {
                 return callback(null)
               },
               function testPatientSavedInDb(callback) {
+                /* checks no new ones were created as well */
                 Models.Patient.find({}, function(err, patients) {
                   if (err) return callback(err)
                   Code.expect(patients).to.have.length(1)
@@ -821,7 +824,6 @@ lab.experiment('core/patient controller integration tests', () => {
                 server.inject(req, res => callback(null, res, patient))
               },
               function testPatientNotUpdated(res, _patient, callback) {
-                console.log(res.result)
                 const errMessage = 'child "email" fails because ["email" must be a valid email]'
                 Code.expect(TestUtils.isRespError(res, 422, 'Invalid Data', errMessage))
                   .to.be.true()
@@ -829,12 +831,110 @@ lab.experiment('core/patient controller integration tests', () => {
                 return callback(null)
               },
               function testPatientNotSavedInDb(callback) {
+                /* checks no new ones were created as well */
                 Models.Patient.find({}, function(err, patients) {
                   if (err) return callback(err)
                   Code.expect(patients).to.have.length(1)
 
                   const updatedPatient = patients[0]
                   Code.expect(updatedPatient.email).to.equal('test@test.com')
+
+                  return callback(null)
+                })
+              }
+            ],
+            function finish(err) {
+              if (err) throw err
+
+              return done()
+            })
+          })
+
+          lab.test('Should return 422 if birthdate is too late.', (done) => {
+            Async.waterfall([
+              function fakePatientJSON(callback) {
+                FakeFactories.patientFactory.createAndSave(
+                  1,
+                  null,
+                  callback
+                )
+              },
+              function attemptToUpdatePatient(patient, callback) {
+                const payload = _.cloneDeep(patient.toJSON())
+                payload.dob = new Date('1895-02-07')
+
+                const req = {
+                  method: 'PUT',
+                  url: `/api/v1.0/patients/${patient._id}`,
+                  payload: payload
+                }
+
+                server.inject(req, res => callback(null, res, patient))
+              },
+              function testPatientNotUpdated(res, _patient, callback) {
+                const errMessage = 'Invalid DOB'
+                Code.expect(TestUtils.isRespError(res, 422, 'Invalid Data', errMessage))
+                  .to.be.true()
+
+                return callback(null, _patient)
+              },
+              function testPatientNotSavedInDb(_patient, callback) {
+                /* checks no new ones were created as well */
+                Models.Patient.find({}, function(err, patients) {
+                  if (err) return callback(err)
+                  Code.expect(patients).to.have.length(1)
+
+                  const updatedPatient = patients[0]
+                  Code.expect(updatedPatient.dob).to.equal(_patient.dob)
+
+                  return callback(null)
+                })
+              }
+            ],
+            function finish(err) {
+              if (err) throw err
+
+              return done()
+            })
+          })
+
+          lab.test('Should return 422 if birthdate is in the future.', (done) => {
+            Async.waterfall([
+              function fakePatientJSON(callback) {
+                FakeFactories.patientFactory.createAndSave(
+                  1,
+                  null,
+                  callback
+                )
+              },
+              function attemptToUpdatePatient(patient, callback) {
+                const payload = _.cloneDeep(patient.toJSON())
+                payload.dob = new Date('2031-02-07')
+
+                const req = {
+                  method: 'PUT',
+                  url: `/api/v1.0/patients/${patient._id}`,
+                  payload: payload
+                }
+
+
+                server.inject(req, res => callback(null, res, patient))
+              },
+              function testPatientNotUpdated(res, _patient, callback) {
+                const errMessage = 'Invalid DOB'
+                Code.expect(TestUtils.isRespError(res, 422, 'Invalid Data', errMessage))
+                  .to.be.true()
+
+                return callback(null, _patient)
+              },
+              function testPatientNotSavedInDb(_patient, callback) {
+                /* checks no new ones were created as well */
+                Models.Patient.find({}, function(err, patients) {
+                  if (err) return callback(err)
+                  Code.expect(patients).to.have.length(1)
+
+                  const updatedPatient = patients[0]
+                  Code.expect(updatedPatient.dob).to.equal(_patient.dob)
 
                   return callback(null)
                 })
