@@ -1,4 +1,5 @@
-/* eslint disable no-unused-vars: off, no-console: off */
+/* eslint-disable no-unused-vars */
+/* eslint-disable no-console */
 
 const Async = require('async')
 const Code = require('code')

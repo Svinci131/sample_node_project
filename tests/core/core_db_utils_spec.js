@@ -14,6 +14,7 @@ const lab = exports.lab = Lab.script()
 const Schema = Mongoose.Schema
 
 let mongoose
+let server
 let Cat
 
 const breedSchema = Schema({

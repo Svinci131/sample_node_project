@@ -14,5 +14,3 @@ Clean up:
  - remove consoles
  - check names in tests
 
-
-The following leaks were detected:SharedArrayBuffer, Atomics
