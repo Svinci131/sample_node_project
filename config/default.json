@@ -1,4 +1,8 @@
 {
+  "app": {
+    "max_page_limit": 100,
+    "default_page_limit": 25
+  },
   "database": {
     "connection_string": "mongodb://parsley_health_test_sv_mongodb:27017/parsley_health_test_sv_test"
   },
