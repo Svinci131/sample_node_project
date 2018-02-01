@@ -1,23 +1,18 @@
-/* eslint-disable no-unused-vars */
 /* eslint-disable no-console */
 
 const _ = require('lodash')
 const Async = require('async')
-const Boom = require('boom')
 const Code = require('code')
 const Config = require('config')
 const DbUtils = require('../../lib/modules/core/db_utils')
-const expect = require('chai').expect
 const Faker = require('faker')
 const Lab = require('lab')
 const Mongoose = require('mongoose')
-// const Utils = require('@bondco/ps-utils')
 const TestUtils = require('../test_utils')
 
 const lab = exports.lab = Lab.script()
 const Schema = Mongoose.Schema
 
-let server
 let mongoose
 let Cat
 
@@ -298,15 +293,15 @@ lab.experiment('util_db tests', () => {
           ).exec(callback)
         },
         function testSortedDataReturned(cats, callback) {
-            Code.expect(cats).to.have.length(8)
+          Code.expect(cats).to.have.length(8)
 
-            const actual = cats.map(cat => cat.name  + '-' + cat.hid)
-            const expected = ['aaaa-1', 'aaaa-2', 'bbbb-2', 'bbbb-3', 'cccc-3', 'cccc-4', 'dddd-4', 'dddd-5']
+          const actual = cats.map(cat => cat.name  + '-' + cat.hid)
+          const expected = ['aaaa-1', 'aaaa-2', 'bbbb-2', 'bbbb-3', 'cccc-3', 'cccc-4', 'dddd-4', 'dddd-5']
 
-            Code.expect(_.isEqual(actual, expected)).to.be.true()
+          Code.expect(_.isEqual(actual, expected)).to.be.true()
 
-            return callback(null, null)
-          }
+          return callback(null, null)
+        }
       ],
       function finish(err, result) {
         if (err) throw err
@@ -331,15 +326,15 @@ lab.experiment('util_db tests', () => {
           ).exec(callback)
         },
         function testSortedDataReturned(cats, callback) {
-            Code.expect(cats).to.have.length(8)
+          Code.expect(cats).to.have.length(8)
 
-            const actual = cats.map(cat => cat.name  + '-' + cat.hid)
-            const expected = ['aaaa-2', 'aaaa-1', 'bbbb-3', 'bbbb-2', 'cccc-4', 'cccc-3', 'dddd-5', 'dddd-4']
+          const actual = cats.map(cat => cat.name  + '-' + cat.hid)
+          const expected = ['aaaa-2', 'aaaa-1', 'bbbb-3', 'bbbb-2', 'cccc-4', 'cccc-3', 'dddd-5', 'dddd-4']
 
-            Code.expect(_.isEqual(actual, expected)).to.be.true()
+          Code.expect(_.isEqual(actual, expected)).to.be.true()
 
-            return callback(null, null)
-          }
+          return callback(null, null)
+        }
       ],
       function finish(err, result) {
         if (err) throw err

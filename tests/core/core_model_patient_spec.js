@@ -5,6 +5,7 @@ const Code = require('code')
 const Lab = require('lab')
 const TestUtils = require('../test_utils')
 const FakeFactories = require('../../lib/modules/core/models/fake_factories')
+
 const lab = exports.lab = Lab.script()
 
 let mongoose
