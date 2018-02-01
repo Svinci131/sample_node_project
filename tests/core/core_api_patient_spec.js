@@ -254,7 +254,6 @@ lab.experiment('core/patient controller integration tests', () => {
       /* Should throw 422 if:
           - Patient with same name exists
           - Patient with same email exists
-          - birthdate and year don't match up
       */
 
       lab.test('Should create a new patient document and return it.', (done) => {
@@ -455,6 +454,97 @@ lab.experiment('core/patient controller integration tests', () => {
           })
         })
 
+        lab.test('Should return 422 if birthdate is too late.', (done) => {
+          Async.waterfall([
+            function fakePatientJSON(callback) {
+              FakeFactories.patientFactory.create(
+                1,
+                null,
+                callback
+              )
+            },
+            function createPatient(patient, callback) {
+              const payload = _.cloneDeep(patient.toJSON())
+              delete payload.id
+              delete payload._id
+              payload.dob = new Date('1895-02-07')
+
+              const req = {
+                method: 'POST',
+                url: '/api/v1.0/patients',
+                payload: payload
+              }
+
+              server.inject(req, res => callback(null, res, patient))
+            },
+            function testPatientNotUpdated(res, _patient, callback) {
+              const errMessage = 'Invalid DOB'
+              Code.expect(TestUtils.isRespError(res, 422, 'Invalid Data', errMessage))
+                .to.be.true()
+
+              return callback(null)
+            },
+            function testPatientNotSavedInDb(callback) {
+              Models.Patient.find({}, function(err, patients) {
+                if (err) return callback(err)
+                Code.expect(patients).to.have.length(0)
+
+                return callback(null)
+              })
+            }
+          ],
+          function finish(err) {
+            if (err) throw err
+
+            return done()
+          })
+        })
+
+        lab.test('Should return 422 if birthdate is in the future.', (done) => {
+          Async.waterfall([
+            function fakePatientJSON(callback) {
+              FakeFactories.patientFactory.create(
+                1,
+                null,
+                callback
+              )
+            },
+            function createPatient(patient, callback) {
+              const payload = _.cloneDeep(patient.toJSON())
+              delete payload.id
+              delete payload._id
+              payload.dob = new Date('2031-02-07')
+
+              const req = {
+                method: 'POST',
+                url: '/api/v1.0/patients',
+                payload: payload
+              }
+
+              server.inject(req, res => callback(null, res, patient))
+            },
+            function testPatientNotUpdated(res, _patient, callback) {
+              const errMessage = 'Invalid DOB'
+              Code.expect(TestUtils.isRespError(res, 422, 'Invalid Data', errMessage))
+                .to.be.true()
+
+              return callback(null)
+            },
+            function testPatientNotSavedInDb(callback) {
+              Models.Patient.find({}, function(err, patients) {
+                if (err) return callback(err)
+                Code.expect(patients).to.have.length(0)
+
+                return callback(null)
+              })
+            }
+          ],
+          function finish(err) {
+            if (err) throw err
+
+            return done()
+          })
+        })
         lab.test.skip('Should return 422 if phone number is invalid.', (done) => {
           Async.waterfall([
             function fakePatientJSON(callback) {
