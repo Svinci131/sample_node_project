@@ -1,7 +1,9 @@
+Implementation Notes
+====================
 
 ### Build
 
-** Please note the -d which runs docker in the background **
+**Please note the -d which runs docker in the background**
 
 ```
  docker-compose up -d
@@ -10,7 +12,7 @@
 
 ### Test
 
-** After starting docker from above **
+**After starting docker from above**
 
 ```
  npm test
@@ -21,7 +23,7 @@
 
 Test - http://0.0.0.0:50/ping
 
-POST, LIST -http://0.0.0.0:50/api/v1.0/patients
+POST, LIST - http://0.0.0.0:50/api/v1.0/patients
 
 PUT, GET, DELETE - http://0.0.0.0:50/api/v1.0/patients/{id}
 
