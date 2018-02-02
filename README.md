@@ -33,6 +33,7 @@ Route Handler: _lib/modules/core/controllers/patient.js_
 
 Patient Model: _lib/modules/core/models/patient.js_
 
+Test: (Good general overview) <i>tests/core/core_api_patient.js</i>
 
 ### Helper Modules:
 _(From boilerplate I'd made for other projects and have found useful in general)_
@@ -50,6 +51,7 @@ Exposes a groom query method that can be used to quickly apply methods like sort
 <i>test/test_utils</i>
 
 Spins up a mock version of the server and exposes methods to let you drop and recreate your test db between unit tests.
+
 
 Medical Database API
 ====================
