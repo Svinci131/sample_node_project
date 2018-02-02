@@ -1,18 +1,55 @@
 
 ### Build
 
-'''
+```
  docker-compose up
 
-'''
+```
 
 ### Test
 
-''' 
+```
  npm test
 
-'''
+```
 
+### Routes:
+
+Test - http://0.0.0.0:50/ping
+
+POST, LIST -http://0.0.0.0:50/api/v1.0/patients
+
+PUT, GET, DELETE - http://0.0.0.0:50/api/v1.0/patients/{id}
+
+PATCH - _NOT FULLY IMPLEMENTED_
+http://0.0.0.0:50/api/v1.0/patients/{id}
+
+### File Structure
+_(Main files for this project)_
+
+Main module: _lib/modules/core_
+
+Route Handler: _lib/modules/core/controllers/patient.js_
+
+Patient Model: _lib/modules/core/models/patient.js_
+
+
+### Helper Modules:
+_(From boilerplate I'd made for other projects and have found useful in general)_
+
+**Model Factory -** <i>lib/modules/model_factory</i>
+
+Used to quickly create fake documents for testing purposes.
+(See: <i>lib/modules/core/models/fake_factories</i> and <i>tests/</i>)
+
+** DB Utils -** <i>lib/modules/db_utils</i>
+
+Exposes a groom query method that can be used to quickly apply methods like sort, pageLimit and offset to routes and a few other generally useful things to help avoid repeating code. (I put some more specific notes where the method is used in _lib/modules/core/controllers/patient.js_
+
+** Test Utils - ** 
+<i>test/test_utils</i>
+
+Spins up a mock version of the server and exposes methods to let you drop and recreate your test db between unit tests.
 
 Medical Database API
 ====================
