@@ -33,7 +33,7 @@ Route Handler: _lib/modules/core/controllers/patient.js_
 
 Patient Model: _lib/modules/core/models/patient.js_
 
-Test: (Good general overview) <i>tests/core/core_api_patient.js</i>
+Test (Good general overview): <i>tests/core/core_api_patient.js</i>
 
 ### Helper Modules:
 _(From boilerplate I'd made for other projects and have found useful in general)_
