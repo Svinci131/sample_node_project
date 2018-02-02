@@ -1,4 +1,7 @@
-FROM mhart/alpine-node:latest
+FROM mhart/alpine-node:7.10.0
+RUN apk update
+RUN apk add tzdata
+RUN cp /usr/share/zoneinfo/America/New_York /etc/localtime
 ENV ROOT_PATH /app
 ADD package.json $ROOT_PATH/package.json
 WORKDIR $ROOT_PATH

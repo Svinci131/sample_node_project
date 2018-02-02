@@ -1,7 +1,5 @@
 /* eslint no-unused-vars: off, no-console: off */
 
-'use strict'
-
 const Async = require('async')
 const Config = require('config')
 const Glue = require('glue')
@@ -25,8 +23,7 @@ module.exports.setupServer = function(useDb, done) {
           Config.get('database.connection_string'),
           callback
         )
-      }
-      else {
+      } else {
         return callback(null, null)
       }
     },
@@ -36,8 +33,7 @@ module.exports.setupServer = function(useDb, done) {
           console.log('Test database dropped')
           return callback(err, mongoose)
         })
-      }
-      else {
+      } else {
         return callback(null, null)
       }
     },
@@ -46,6 +42,7 @@ module.exports.setupServer = function(useDb, done) {
       const glueOptions = {
         relativeTo: Path.join(__dirname, '..', 'lib', 'modules')
       }
+
       Glue.compose(manifest, glueOptions, (err, _server) => {
         return callback(err, _server, mongoose)
       })
@@ -88,8 +85,7 @@ module.exports.tearDownServer = function(db, onComplete) {
 
       return onComplete()
     })
-  }
-  else {
+  } else {
     return onComplete()
   }
 }

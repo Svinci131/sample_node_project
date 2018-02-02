@@ -1,7 +1,5 @@
 /* eslint no-unused-vars: off, no-console: off */
 
-'use strict'
-
 const Boom = require('boom')
 const Code = require('code')
 const Lab = require('lab')
@@ -10,15 +8,17 @@ const TestUtils = require('../test_utils')
 
 const lab = exports.lab = Lab.script()
 
-var server, mongoose
+let mongoose
+let server
 
 lab.experiment('core/utils module tests', () => {
 
   lab.before((done) => {
-    var onServerReady = function(_server, _mongoose) {
+    const onServerReady = function(_server, _mongoose) {
       server = _server
       return done()
     }
+
     TestUtils.setupServer(false, onServerReady)
   })
 
@@ -28,7 +28,7 @@ lab.experiment('core/utils module tests', () => {
 
   lab.experiment('core/utils tests', () => {
 
-    var Utils = require('../../lib/modules/core/utils')
+    const Utils = require('../../lib/modules/core/utils')
 
     lab.experiment('packageValidationErrors() tests', () => {
 
@@ -41,7 +41,7 @@ lab.experiment('core/utils module tests', () => {
 
       lab.test('should return packaged errors object if errors found.',
         (done) => {
-          var errors = [
+          const errors = [
             { message: '"name" is too short', path: 'name', randomProp: true },
             { message: '"age" is too small', path: 'age', randomProp: false }
           ]
@@ -59,10 +59,11 @@ lab.experiment('core/utils module tests', () => {
     lab.experiment('createSuccessRespPayload() tests', () => {
 
       lab.test('should return expected payload', (done) => {
-        Code.expect(Utils.createSuccessRespPayload({'a': 'b'})).to.equal({
+        Code.expect(Utils.createSuccessRespPayload({ a: 'b' })).to.equal({
           status: 'success',
-          data: {'a': 'b'}
+          data: { a: 'b' }
         })
+
         done()
       })
 

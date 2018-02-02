@@ -1,7 +1,7 @@
 {
   "name": "samantha_vinci_parsley_health",
   "version": "1.0.0",
-  "description": "",
+  "description": "Test for Parsley Health",
   "author": "Samantha Vinci <svinci131@gmail.com>",
   "main": "server.js",
   "scripts": {
@@ -12,6 +12,7 @@
     "codeclimate": "codeclimate-test-reporter < coverage/lcov.info"
   },
   "dependencies": {
+    "address-geoservices": "0.0.6",
     "async": "^2.0.1",
     "boom": "^3.2.2",
     "bower": "^1.7.9",
@@ -28,9 +29,11 @@
     "hapi-swaggered-ui": "^2.5.1",
     "inert": "^4.0.2",
     "joi": "^9.0.4",
+    "joi-objectid": "^2.0.0",
     "joi-phone-number": "^2.0.1",
     "lodash": "^4.16.1",
     "mongoose": "^4.6.1",
+    "object-path": "^0.11.4",
     "vision": "^4.1.0"
   },
   "devDependencies": {

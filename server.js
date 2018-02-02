@@ -1,7 +1,5 @@
 /* eslint no-console: off */
 
-'use strict'
-
 const Config = require('config')
 const Glue = require('glue')
 const Mongoose = require('./lib/modules/mongoose')
