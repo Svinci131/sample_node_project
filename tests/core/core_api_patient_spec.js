@@ -403,10 +403,6 @@ lab.experiment('core/patient controller integration tests', () => {
 
     lab.experiment('CREATE tests', () => {
 
-      /* Should throw error if:
-          - Patient with same email exists
-      */
-
       lab.test('Should create a new patient document and return it.', (done) => {
         Async.waterfall([
           function fakePatientJSON(callback) {
@@ -464,6 +460,62 @@ lab.experiment('core/patient controller integration tests', () => {
       })
 
       lab.experiment('Error Handling', () => {
+        lab.test('Should not create a patient with the same email as ' +
+        'an existing patient.', (done) => {
+          Async.waterfall([
+            function fakePatient(callback) {
+              FakeFactories.patientFactory.createAndSave(
+                1,
+                {
+                  firstName: 'sara',
+                  email: 'iamunique@test.com'
+                },
+                callback
+              )
+            },
+            function fakePatient(patient, callback) {
+              FakeFactories.patientFactory.create(
+                1,
+                {
+                  firstName: 'Ben',
+                  email: 'iamunique@test.com'
+                },
+                callback
+              )
+            },
+            function createPatient(patient, callback) {
+              const req = {
+                method: 'POST',
+                url: '/api/v1.0/patients',
+                payload: patient
+              }
+
+              server.inject(req, res => callback(null, res))
+            },
+            function testPatientRetrieved(res, callback) {
+              const errMessage = 'Conflict: email must be unique'
+              Code.expect(TestUtils.isRespError(res, 409, errMessage))
+                .to.be.true()
+
+              return callback(null)
+            },
+            function testDuplicatePatientNotSavedInDb(callback) {
+              Models.Patient.find({}, function(err, patients) {
+                if (err) return callback(err)
+                Code.expect(patients).to.have.length(1)
+                Code.expect(patients[0].firstName).to.equal('sara')
+
+                return callback(null)
+              })
+            }
+          ],
+          function finish(err) {
+            if (err) throw err
+
+            return done()
+          })
+        })
+
         lab.test('Should return 422 if attempting to make name an empty string.', (done) => {
           Async.waterfall([
             function fakePatientJSON(callback) {
@@ -907,7 +959,7 @@ lab.experiment('core/patient controller integration tests', () => {
 
           lab.test('Should return 422 if attempting to set name as empty string.', (done) => {
             Async.waterfall([
-              function fakePatientJSON(callback) {
+              function fakePatient(callback) {
                 FakeFactories.patientFactory.createAndSave(
                   1,
                   { lastName: 'Karim' },
@@ -955,7 +1007,7 @@ lab.experiment('core/patient controller integration tests', () => {
 
           lab.test('Should return 422 if attempting to make name too long.', (done) => {
             Async.waterfall([
-              function fakePatientJSON(callback) {
+              function fakePatient(callback) {
                 FakeFactories.patientFactory.createAndSave(
                   1,
                   { lastName: 'Karim' },
@@ -1003,7 +1055,7 @@ lab.experiment('core/patient controller integration tests', () => {
 
           lab.test('Should return 422 if given an invalid email.', (done) => {
             Async.waterfall([
-              function fakePatientJSON(callback) {
+              function fakePatient(callback) {
                 FakeFactories.patientFactory.createAndSave(
                   1,
                   { email: 'test@test.com' },
@@ -1051,7 +1103,7 @@ lab.experiment('core/patient controller integration tests', () => {
 
           lab.test('Should return 422 if birthdate is too late.', (done) => {
             Async.waterfall([
-              function fakePatientJSON(callback) {
+              function fakePatient(callback) {
                 FakeFactories.patientFactory.createAndSave(
                   1,
                   null,
@@ -1099,7 +1151,7 @@ lab.experiment('core/patient controller integration tests', () => {
 
           lab.test('Should return 422 if birthdate is in the future.', (done) => {
             Async.waterfall([
-              function fakePatientJSON(callback) {
+              function fakePatient(callback) {
                 FakeFactories.patientFactory.createAndSave(
                   1,
                   null,
@@ -1148,7 +1200,7 @@ lab.experiment('core/patient controller integration tests', () => {
 
           lab.test('Should return 422 if phone number is too short.', (done) => {
             Async.waterfall([
-              function fakePatientJSON(callback) {
+              function fakePatient(callback) {
                 FakeFactories.patientFactory.createAndSave(
                   1,
                   null,
@@ -1200,7 +1252,7 @@ lab.experiment('core/patient controller integration tests', () => {
 
           lab.test('Should return 422 if phone number contains non-numeric characters.', (done) => {
             Async.waterfall([
-              function fakePatientJSON(callback) {
+              function fakePatient(callback) {
                 FakeFactories.patientFactory.createAndSave(
                   1,
                   null,
@@ -1395,7 +1447,7 @@ lab.experiment('core/patient controller integration tests', () => {
           })
         })
 
-        lab.test('Should update nested fields on patient document.', (done) => {
+        lab.test.skip('Should update nested fields on patient document.', (done) => {
           Async.waterfall([
             function fakePatientJSON(callback) {
               FakeFactories.patientFactory.createAndSave(
