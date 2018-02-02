@@ -44,17 +44,16 @@ Test (Good general overview): <i>tests/core/core_api_patient.js</i>
 ### Helper Modules:
 _(From boilerplate I'd made for other projects and have found useful in general)_
 
-**Model Factory -** <i>lib/modules/model_factory</i>
+**Model Factory** <i>lib/modules/model_factory</i>
 
 Used to quickly create fake documents for testing purposes.
 (See: <i>lib/modules/core/models/fake_factories</i> and <i>tests/</i>)
 
-** DB Utils -** <i>lib/modules/db_utils</i>
+**DB Utils** <i>lib/modules/db_utils</i>
 
 Exposes a groom query method that can be used to quickly apply methods like sort, pageLimit and offset to routes and a few other generally useful things to help avoid repeating code. (I put some more specific notes where the method is used in _lib/modules/core/controllers/patient.js_
 
-** Test Utils - ** 
-<i>test/test_utils</i>
+**Test Utils** <i>test/test_utils</i>
 
 Spins up a mock version of the server and exposes methods to let you drop and recreate your test db between unit tests.
 
