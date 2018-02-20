@@ -65,8 +65,6 @@ Medical Database API
 
 In this task you'll be creating a simple web service to present a database-driven API which writes and reads simple patient objects.
 
-> If you have any questions email me at michael@parsleyhealth.com.
-
 ### Components
 
 1.  **Containers**: Please use a tool like `Docker` (with `Docker Compose`), `Kubernetes` or `Apache Mesos` to structure your database and application containers so that I can easily launch this service. 
