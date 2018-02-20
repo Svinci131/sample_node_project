@@ -118,13 +118,3 @@ Less important details:
 *   Email me the repository URL and application URL
 
 > If for some reason you would rather not have your code or application out in the open, please send me a zip file of the source code and instructions on to launch and view the finished application.
-
-### Wrap up
-
-When you've finished the test let me know by email: michael@parsleyhealth.com
-
-We will then schedule a short wrap up call to go over your results and the thinking you applied to this project.
-
-### Hints
-
-*   Be efficient! Please don’t reinvent the wheel, use boilerplates or starter projects when they speed up your process and get you to your end goal faster.
